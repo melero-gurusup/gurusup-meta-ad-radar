@@ -38,7 +38,9 @@ cd gurusup-meta-ad-radar
 ./setup.sh
 ```
 
-`setup.sh` monta el entorno, clona e instala el **servidor MCP de la Ad Library** y lo registra en Claude Code con tu token. Si falta el token, se para y te dice dónde ponerlo: lo sacas en [ScrapeCreators](https://scrapecreators.com/dashboard) y lo pegas en `.env`. Un barrido de quince marcas cuesta unos 25 créditos.
+`setup.sh` monta el entorno, clona e instala el **servidor MCP de la Ad Library** y lo registra en Claude Code con tu token. Si falta el token, se para y te dice dónde ponerlo: lo sacas en [ScrapeCreators](https://scrapecreators.com) y lo pegas en `.env`.
+
+**Qué cuesta.** ScrapeCreators es la API que sirve la Biblioteca de Anuncios. Se paga por créditos, sin suscripción y sin caducidad: **100 gratis al registrarte, sin tarjeta**, y hasta 7.000 más gratis por decirles cómo los encontraste, darle una estrella a su repo y dejarles una reseña. Un barrido de quince marcas cuesta unos **25 créditos**, así que solo con los 100 iniciales tienes para cuatro barridos completos, y con los de bonus para años de barrido semanal. Si te quedas corto, el paquete de entrada son 47 $ por 25.000 créditos, pago único.
 
 Instala también **ffmpeg** si no lo tienes (`brew install ffmpeg`), para las miniaturas de las creatividades.
 
