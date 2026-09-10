@@ -117,6 +117,12 @@ Sin MCP, el mismo paso a mano: `./venv/bin/python adlib.py "Nombre"`.
 
 ### 5. Escribe el config y haz el primer barrido
 
+Si la persona duda del set, o quiere ver antes cómo queda el informe, ofrécele el
+set de prueba: `cp config.demo.json config.json` y un barrido con `--limit 7`.
+Son unos 15 créditos y devuelve un informe completo con Coca-Cola y Pepsi. Sirve
+también para comprobar que la instalación está bien antes de gastar en su set real.
+
+
 Copia `config.example.json` a `config.json`, rellénalo, y lanza el barrido
 completo. Al terminar, avisa de cuántos créditos quedan.
 

@@ -1,0 +1,22 @@
+{
+  "_nota": "Set de demostración para probar la instalación sin tener que definir tus competidores todavía. Cópialo a config.json y lanza: ./venv/bin/python barrido.py --limit 7 && ./venv/bin/python informe.py --top 8 — unos 15 créditos y un informe completo en dos minutos.",
+
+  "_leccion": "Fíjate en lo que sale: la página que la Ad Library devuelve como 'Coca-Cola' es la de Perú (su copy va en soles) y la que devuelve como 'Pepsi' es la de Vietnam. Ninguna de las dos es la marca global. Por eso el paso de verificar no es opcional: se resuelve el nombre, se traen los anuncios y se mira el link_url antes de dar una página por buena.",
+
+  "informe": {
+    "titulo": "Radar Meta — Coca-Cola vs Pepsi",
+    "etiqueta": "Meta Ad Radar · demo",
+    "categoria": "el duelo de las colas"
+  },
+
+  "competidores": [
+    {"nombre": "Coca-Cola",             "page_id": "327026330836426", "verificado": true,  "web": "coca-cola.com"},
+    {"nombre": "The Coca-Cola Company", "page_id": "542678889114683", "verificado": true,  "web": "coca-colacompany.com"},
+    {"nombre": "Coca-Cola España",      "page_id": "562294980300392", "verificado": false, "web": "cocacolaespana.es"},
+    {"nombre": "Pepsi",                 "page_id": "100473740084971", "verificado": true,  "web": "pepsi.com"},
+    {"nombre": "Pepsi Max",             "page_id": "10098929349",     "verificado": true,  "web": "pepsi.com"},
+    {"nombre": "PepsiCo España",        "page_id": "169257856531130", "verificado": false, "web": "pepsico.es"}
+  ],
+
+  "sin_pagina_identificada": []
+}

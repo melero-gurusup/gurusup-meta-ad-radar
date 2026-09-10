@@ -71,6 +71,22 @@ Si el MCP no te levanta, `./setup.sh --sin-mcp` deja el radar funcionando. Pierd
 
 </details>
 
+## Pruébalo antes de definir tus competidores
+
+El repo trae un set de demostración con Coca-Cola y Pepsi, para que veas un informe real antes de decidir a quién quieres rastrear:
+
+```bash
+cp config.demo.json config.json
+./venv/bin/python barrido.py --limit 7
+./venv/bin/python informe.py --top 8
+```
+
+Dos minutos y unos 15 créditos. Sale un informe con cuatro marcas comprando, dos a cero y el ranking de creatividades con sus miniaturas.
+
+Vale la pena mirar una cosa: la página que la Ad Library devuelve como «Coca-Cola» es **la de Perú** —su copy va en soles— y la que devuelve como «Pepsi» es **la de Vietnam**. Ninguna de las dos es la marca global, y las cuentas españolas de ambas no tienen un solo anuncio activo. Ese es exactamente el error que la verificación evita, y aquí se ve en lugar de contarse.
+
+La sección de lecturas saldrá vacía, porque esa parte no la genera el script: se escribe después de mirar las creatividades. Pídesela a Claude y la rellena.
+
 ## Puesta en marcha con Claude Code
 
 Abre Claude Code en la carpeta del repo y pídele el radar. La skill vive en `.claude/skills/radar-competencia/`, así que está disponible sin instalar nada más.
@@ -103,6 +119,7 @@ cp lecturas.example.md lecturas.md      # tus lecturas
 | `setup.sh` | Entorno, alta, servidor MCP y token. Se lanza una vez |
 | `alta.py` | Alta gratuita en ScrapeCreators por GitHub |
 | `config.json` | El set rastreado y los textos del informe |
+| `config.demo.json` | Set de prueba con Coca-Cola y Pepsi, para ver un informe real sin configurar nada |
 | `adlib.py` | Cliente de la API para el barrido, y resolutor de marcas si no hay MCP |
 | `barrido.py` | Guarda un snapshot fechado y copia el previo, que es lo que permite decir «esto ha cambiado» |
 | `informe.py` | Agrupa por copy, calcula longevidad y variantes, saca miniaturas y escribe el HTML |
