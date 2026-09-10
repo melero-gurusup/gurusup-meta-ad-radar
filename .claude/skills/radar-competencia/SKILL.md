@@ -42,9 +42,23 @@ Monta el entorno, clona e instala el servidor MCP y lo registra en Claude Code
 con el token. Comprueba después con `/mcp` que `facebook-ads-library` aparece
 conectado; si no, la sesión tiene que reiniciarse para que cargue.
 
-El script se para y te dice qué falta si el token no está puesto. **El token lo
-pone la persona**, en `.env`: se saca en `https://scrapecreators.com/dashboard`.
-No se lo pidas dictado ni lo escribas tú.
+**No le pidas ningún token.** Si no hay ninguno, `setup.sh` lanza el alta
+gratuita de ScrapeCreators por GitHub: 10.000 llamadas, sin tarjeta. Imprime un
+código, abre el navegador y espera a que la persona autorice; al volver, guarda
+el token en `.env` con permisos 600. La autorización la da ella con su cuenta de
+GitHub, en su navegador.
+
+Tres reglas al respecto, y no se saltan:
+
+- **Nunca pidas un token por el chat.** Todo lo que se escribe aquí queda en la
+  conversación. Si alguien insiste en poner el suyo a mano, que lo pegue en
+  `.env` directamente.
+- **Nunca enseñes un token**, ni entero ni un trozo, ni lo escribas en un
+  archivo que vaya a git. `.env` está en el `.gitignore` por eso.
+- **Nunca reutilices el token de otro sitio sin preguntar.** `setup.sh` detecta
+  el del plugin `last30days` y ofrece reutilizarlo, avisando de que entonces
+  las dos herramientas comparten bolsa de créditos. La decisión es de la
+  persona, no tuya.
 
 Si después de dos intentos honestos el MCP no levanta, sigue con
 `./setup.sh --sin-mcp` y **dilo en voz alta**: el radar funciona, pero las
@@ -157,6 +171,7 @@ Cinco preguntas que suelen dar buenas lecturas están en `lecturas.example.md`.
 | Archivo | Papel |
 |---|---|
 | `setup.sh` | Entorno, servidor MCP y token. Se lanza una vez |
+| `alta.py` | Alta gratuita en ScrapeCreators por GitHub. Lo llama `setup.sh` si hace falta |
 | `config.json` | El set rastreado y los textos del informe |
 | `adlib.py` | Cliente de la API para el barrido, y resolutor de marcas si no hay MCP |
 | `barrido.py` | Guarda `data/snapshot-<fecha>.json`, `data/ultimo.json` y copia el previo a `data/anterior.json` |
@@ -187,6 +202,10 @@ como propias ni las uses de otra manera.
 **Un solo token para todo.** El de ScrapeCreators, en `.env`. `setup.sh` se lo
 pasa al MCP al registrarlo. Si alguien lo rota, hay que volver a lanzar
 `./setup.sh` para que el MCP se quede con el nuevo.
+
+**Los créditos son suyos y se gastan.** Cada página de 30 anuncios es un
+crédito y cada búsqueda de marca otro; el alta gratuita trae 10.000. Antes de
+un barrido grande o de añadir diez marcas de golpe, di lo que va a costar.
 
 ---
 

@@ -38,9 +38,13 @@ cd gurusup-meta-ad-radar
 ./setup.sh
 ```
 
-`setup.sh` monta el entorno, clona e instala el **servidor MCP de la Ad Library** y lo registra en Claude Code con tu token. Si falta el token, se para y te dice dónde ponerlo: lo sacas en [ScrapeCreators](https://scrapecreators.com) y lo pegas en `.env`.
+`setup.sh` monta el entorno, **te da de alta gratis en ScrapeCreators** si no tienes cuenta, clona e instala el **servidor MCP de la Ad Library** y lo registra en Claude Code con tu token. No tienes que ir a ninguna web a registrarte ni pegar nada.
 
-**Qué cuesta.** ScrapeCreators es la API que sirve la Biblioteca de Anuncios. Se paga por créditos, sin suscripción y sin caducidad: **100 gratis al registrarte, sin tarjeta**, y hasta 7.000 más gratis por decirles cómo los encontraste, darle una estrella a su repo y dejarles una reseña. Un barrido de quince marcas cuesta unos **25 créditos**, así que solo con los 100 iniciales tienes para cuatro barridos completos, y con los de bonus para años de barrido semanal. Si te quedas corto, el paquete de entrada son 47 $ por 25.000 créditos, pago único.
+**El alta.** ScrapeCreators es la API que sirve la Biblioteca de Anuncios. El alta va por GitHub con flujo de dispositivo: el script imprime un código, te abre `github.com/login/device`, tú autorizas, y el token queda guardado en `.env` con permisos 600. **Sin tarjeta, y con 10.000 llamadas gratis.** Nadie te pide una contraseña y el token no se imprime nunca.
+
+**Qué cuesta.** Un crédito por cada página de 30 anuncios y otro por cada búsqueda de marca. Un barrido de quince marcas son unos **25 créditos**, así que las 10.000 gratis dan para años de barrido semanal. Si algún día te quedas corto: 47 $ por 25.000 créditos, pago único, sin suscripción y sin caducidad.
+
+Si ya tienes el plugin [last30days](https://github.com/mvanhorn/last30days-skill) instalado, `setup.sh` detecta su token y te ofrece reutilizarlo — avisando de que entonces las dos herramientas gastan de la misma bolsa.
 
 Instala también **ffmpeg** si no lo tienes (`brew install ffmpeg`), para las miniaturas de las creatividades.
 
@@ -96,7 +100,8 @@ cp lecturas.example.md lecturas.md      # tus lecturas
 
 | Archivo | Papel |
 |---|---|
-| `setup.sh` | Entorno, servidor MCP y token. Se lanza una vez |
+| `setup.sh` | Entorno, alta, servidor MCP y token. Se lanza una vez |
+| `alta.py` | Alta gratuita en ScrapeCreators por GitHub |
 | `config.json` | El set rastreado y los textos del informe |
 | `adlib.py` | Cliente de la API para el barrido, y resolutor de marcas si no hay MCP |
 | `barrido.py` | Guarda un snapshot fechado y copia el previo, que es lo que permite decir «esto ha cambiado» |

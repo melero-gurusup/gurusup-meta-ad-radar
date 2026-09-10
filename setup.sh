@@ -54,19 +54,55 @@ ok "entorno del proyecto listo"
 # El token es de ScrapeCreators, que es quien sirve la Biblioteca de Anuncios.
 # El mismo vale para el barrido y para el MCP: se pide una vez.
 [ -f "$RAIZ/.env" ] || cp "$RAIZ/.env.example" "$RAIZ/.env"
-KEY="$(grep -E '^SCRAPECREATORS_API_KEY=' "$RAIZ/.env" | cut -d= -f2- | tr -d " \"'" || true)"
+leer_key() {
+  grep -E '^SCRAPECREATORS_API_KEY=' "$RAIZ/.env" 2>/dev/null | cut -d= -f2- | tr -d " \"'" || true
+}
+KEY="$(leer_key)"
 
 if [ -z "$KEY" ]; then
-  echo
-  echo "  Falta el token. Sácalo en https://scrapecreators.com/dashboard"
-  echo "  y pégalo en la línea SCRAPECREATORS_API_KEY= del archivo:"
-  echo "    $RAIZ/.env"
-  echo
-  echo "  Cuando lo tengas, vuelve a lanzar ./setup.sh"
-  echo
-  exit 1
+  # Si ya tiene una key de otro sitio, se la ofrecemos antes de crear cuenta.
+  # El plugin last30days usa el mismo proveedor y mucha gente lo tiene puesto.
+  OTRA=""
+  L30="$HOME/.config/last30days/.env"
+  if [ -f "$L30" ]; then
+    OTRA="$(grep -E '^SCRAPECREATORS_API_KEY=' "$L30" | cut -d= -f2- | tr -d " \"'" || true)"
+  fi
+
+  if [ -n "$OTRA" ] && [ -t 0 ]; then
+    echo
+    echo "  Tienes ya un token de ScrapeCreators del plugin last30days."
+    echo "  Puedes reutilizarlo, pero entonces el radar y tus informes de"
+    echo "  last30days gastan de la misma bolsa de créditos."
+    echo
+    printf "  ¿Reutilizarlo? [s/N] "
+    read -r RESP
+    case "$RESP" in
+      s|S|si|SI|sí|Sí|y|Y) sed -i.bak "s|^SCRAPECREATORS_API_KEY=.*|SCRAPECREATORS_API_KEY=$OTRA|" "$RAIZ/.env"
+                           rm -f "$RAIZ/.env.bak"; chmod 600 "$RAIZ/.env"
+                           KEY="$(leer_key)"; ok "token reutilizado" ;;
+    esac
+  fi
+
+  if [ -z "$KEY" ]; then
+    if [ -t 0 ]; then
+      # Alta gratuita por GitHub: 10.000 llamadas, sin tarjeta.
+      # La autoriza la persona en su navegador; el script solo espera.
+      python3 "$RAIZ/alta.py" || true
+      KEY="$(leer_key)"
+    fi
+  fi
+
+  if [ -z "$KEY" ]; then
+    echo
+    echo "  Sin token no se puede seguir. Dos formas de conseguirlo:"
+    echo "    ./alta.py                 alta gratuita con GitHub, 10.000 llamadas"
+    echo "    https://scrapecreators.com   registro normal, y pegas el token en .env"
+    echo
+    exit 1
+  fi
 fi
-ok "token de ScrapeCreators encontrado en .env"
+chmod 600 "$RAIZ/.env" 2>/dev/null || true
+ok "token de ScrapeCreators listo"
 
 if [ "$SIN_MCP" = "1" ]; then
   echo
