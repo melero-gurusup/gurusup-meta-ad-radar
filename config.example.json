@@ -1,0 +1,18 @@
+{
+  "_nota": "Copia este archivo a config.json y edítalo. 'verificado' significa que has confirmado el page_id trayendo sus anuncios y comprobando que la página es la empresa real, no un homónimo. Los homónimos son la norma, no la excepción.",
+
+  "informe": {
+    "titulo": "Radar Meta de la competencia",
+    "etiqueta": "Meta Ad Radar",
+    "categoria": "tu categoría en una frase, p. ej. «el panorama de CRM para pymes»"
+  },
+
+  "competidores": [
+    {"nombre": "Competidor A", "page_id": "000000000000000", "verificado": false, "web": "competidor-a.com"},
+    {"nombre": "Competidor B", "page_id": "000000000000000", "verificado": false, "web": "competidor-b.com"}
+  ],
+
+  "sin_pagina_identificada": [
+    {"nombre": "Competidor C", "motivo": "buscar su nombre solo devuelve homónimos. Sin página de Meta localizable a 10-sep-2026."}
+  ]
+}

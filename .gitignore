@@ -1,0 +1,14 @@
+# Tu configuración y tus credenciales
+.env
+config.json
+
+# Salidas del barrido: se regeneran, y los snapshots pesan
+data/
+media/
+out/
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
