@@ -155,9 +155,16 @@ El orden que da lecturas que valen algo:
 2. **Mira las creatividades más longevas** con
    `mcp__facebook-ads-library__analyze_ad_image` sobre las `media_url` del top
    del ranking. Un anuncio que lleva dos meses corriendo merece que alguien
-   mire qué hay en la imagen, no solo qué dice el copy. Para vídeo,
+   mire qué hay en la imagen, no solo qué dice el copy: el formato, si es
+   producción o vídeo de creador, y qué promete el rótulo. Para vídeo,
    `analyze_ad_videos_batch` en una sola llamada, que ahorra bastante contexto
    y necesita `GEMINI_API_KEY` en el `.env`.
+
+   Dos cosas prácticas. La `media_url` va **entera y literal**: son URLs
+   firmadas del CDN de Meta y si les recortas los parámetros del final
+   devuelven 403. Y `analyze_ad_image` no resume la imagen, te la trae para
+   que la mires tú; si el barrido ya corrió, las mismas miniaturas están en
+   `media/` y se pueden abrir de ahí sin gastar nada.
 3. **Escribe** cada lectura como una afirmación con su prueba al lado.
 
 Sin el MCP este paso se salta, y las lecturas salen del texto y ya. Se nota.
