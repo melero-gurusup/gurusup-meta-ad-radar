@@ -12,3 +12,7 @@ __pycache__/
 *.pyc
 venv/
 .venv/
+
+# Servidor MCP clonado por setup.sh
+.mcp-server/
+.mcp.json

@@ -1,6 +1,6 @@
 ---
 name: radar-competencia
-description: Barre la Biblioteca de Anuncios de Meta sobre un set de competidores y publica un informe de inteligencia competitiva con días en activo, variantes y enlace a la ficha de cada anuncio. Usar cuando pidan "radar de competencia", "actualiza el radar", "qué está anunciando la competencia", "analiza los anuncios de X", "qué creatividades tiene <marca>", "mira la Ad Library de", "añade un competidor al radar", "qué ha cambiado desde el último barrido", o cualquier variación sobre revisar el paid de la competencia en Meta.
+description: Barre la Biblioteca de Anuncios de Meta sobre un set de competidores y publica un informe de inteligencia competitiva con días en activo, variantes, análisis de las creatividades y enlace a la ficha de cada anuncio. Usar cuando pidan "radar de competencia", "actualiza el radar", "qué está anunciando la competencia", "analiza los anuncios de X", "qué creatividades tiene <marca>", "mira la Ad Library de", "añade un competidor al radar", "qué ha cambiado desde el último barrido", o cualquier variación sobre revisar el paid de la competencia en Meta.
 ---
 
 # Radar Meta de la competencia
@@ -8,8 +8,21 @@ description: Barre la Biblioteca de Anuncios de Meta sobre un set de competidore
 Barre la Biblioteca de Anuncios de Meta sobre el set de competidores del
 `config.json`, guarda un snapshot fechado y publica el informe como artefacto.
 
-Ejecuta siempre desde la raíz del repo. Si hay un venv en `venv/`, usa
-`./venv/bin/python`; si no, `python3`.
+Ejecuta siempre desde la raíz del repo, con `./venv/bin/python`.
+
+## El reparto de trabajo
+
+Dos piezas, y cada una hace lo que la otra no puede:
+
+- **El servidor MCP `facebook-ads-library`** es para resolver marcas, verificar
+  páginas y, sobre todo, **ver las creatividades**. Sus herramientas de análisis
+  de imagen y vídeo son la diferencia entre unas lecturas escritas leyendo solo
+  el texto del anuncio y unas escritas habiendo visto la pieza.
+- **Los scripts** son para el barrido. Necesitan paginar entero y escribir un
+  snapshot exacto en disco, porque la mitad del valor del informe es el delta
+  contra el barrido anterior, y eso no se sostiene sobre respuestas de chat.
+
+Usa las dos. La skill da por hecho que el MCP está conectado.
 
 ---
 
@@ -19,7 +32,26 @@ Ejecuta siempre desde la raíz del repo. Si hay un venv en `venv/`, usa
 no un formulario. No des por hecho que hay ninguna base de conocimiento interna
 disponible: lo normal es que no la haya.
 
-### 1. Mira qué contexto tienes antes de preguntar
+### 1. Deja el MCP conectado antes que nada
+
+```bash
+./setup.sh
+```
+
+Monta el entorno, clona e instala el servidor MCP y lo registra en Claude Code
+con el token. Comprueba después con `/mcp` que `facebook-ads-library` aparece
+conectado; si no, la sesión tiene que reiniciarse para que cargue.
+
+El script se para y te dice qué falta si el token no está puesto. **El token lo
+pone la persona**, en `.env`: se saca en `https://scrapecreators.com/dashboard`.
+No se lo pidas dictado ni lo escribas tú.
+
+Si después de dos intentos honestos el MCP no levanta, sigue con
+`./setup.sh --sin-mcp` y **dilo en voz alta**: el radar funciona, pero las
+lecturas se van a escribir sin haber visto una sola creatividad, que es
+justo la parte que las hace buenas. No lo dejes pasar en silencio.
+
+### 2. Mira qué contexto tienes antes de preguntar
 
 Por este orden, y sin dar nada por sentado:
 
@@ -33,7 +65,7 @@ Por este orden, y sin dar nada por sentado:
 Lo que saques de ahí lo llevas a la conversación como propuesta, no como hecho:
 «por tu web diría que compites con A, B y C, ¿voy bien?».
 
-### 2. Pregunta lo que falte
+### 3. Pregunta lo que falte
 
 Tres preguntas bastan. Hazlas juntas, no de una en una:
 
@@ -46,39 +78,28 @@ Tres preguntas bastan. Hazlas juntas, no de una en una:
 3. **¿Hay alguien a quien quieras vigilar aunque no sea competencia directa?**
    Referentes de categoría, adyacentes, el que siempre copia todo el mundo.
 
-### 3. Pide la key de ScrapeCreators
-
-La Biblioteca de Anuncios se consulta a través de ScrapeCreators. Dile que la
-saque en `https://scrapecreators.com/dashboard` y que la ponga él mismo en `.env`:
-
-```bash
-cp .env.example .env   # y pegar la key dentro
-```
-
-**No le pidas que te dicte la key ni la escribas tú en el archivo.** Es una
-credencial: la pone la persona.
-
-Comprueba también que hay `ffmpeg` en el PATH (`ffmpeg -version`). Sin él el
-informe sale igual, pero sin miniaturas de las creatividades, que es la mitad
-de la gracia. En macOS: `brew install ffmpeg`.
-
 ### 4. Resuelve cada marca a su page_id, y verifícala
 
-```bash
-python3 adlib.py "Nombre de la marca"
+Con el MCP conectado, en una sola llamada para todas:
+
+```
+mcp__facebook-ads-library__get_meta_platform_id(brand_names=["Marca A", "Marca B", …])
 ```
 
-Devuelve las páginas candidatas con su categoría y su handle de Instagram.
-**Los homónimos son la norma, no la excepción**: buscar "Sierra" devuelve el
-Sierra Club, buscar "Crisp" devuelve una consultora de coaching para bufetes.
+**Los homónimos son la norma, no la excepción.** Un nombre corto devuelve una
+docena de páginas y la primera casi nunca es la buena: asociaciones, negocios
+locales, perfiles personales con el mismo nombre.
 
 El criterio para marcar `"verificado": true` es uno solo: has traído sus
-anuncios y el `page_name` y el `link_url` que salen son de la empresa real. Si
-la página no tiene anuncios, no puedes verificarla: déjala en `false` y dilo.
+anuncios con `get_meta_ads` y el `page_name` y el `link_url` que salen son de
+la empresa real. Si la página no tiene anuncios, no puedes verificarla: déjala
+en `false` y dilo.
 
 Si una marca no aparece por ningún lado, va a `sin_pagina_identificada` con el
 motivo escrito. Aparece en el informe como «sin página», que es información, no
 un fallo.
+
+Sin MCP, el mismo paso a mano: `./venv/bin/python adlib.py "Nombre"`.
 
 ### 5. Escribe el config y haz el primer barrido
 
@@ -90,12 +111,13 @@ completo. Al terminar, avisa de cuántos créditos quedan.
 ## Barrido normal
 
 ```bash
-python3 barrido.py --limit 250
-python3 informe.py --top 14
+./venv/bin/python barrido.py --limit 250
+./venv/bin/python informe.py --top 14
 ```
 
-Después **reescribe `lecturas.md`** (ver abajo) y vuelve a correr `informe.py`
-para que entre en el HTML. Luego publica `out/radar.html` como artefacto.
+Después **mira las creatividades y reescribe `lecturas.md`** (siguiente
+sección), y vuelve a correr `informe.py` para que entren en el HTML. Luego
+publica `out/radar.html` como artefacto.
 
 Para conservar el mismo enlace entre barridos, guarda la URL del artefacto en
 este archivo la primera vez que lo publiques y pásala como `url` en los
@@ -106,26 +128,45 @@ conversación no lo ha publicado todavía.
 
 ---
 
+## Las lecturas: mira antes de escribir
+
+`lecturas.md` es la única parte del informe con criterio, y la única que no
+puede salir de un script. **Reescríbela entera en cada barrido.** Si los datos
+cambiaron y las lecturas no, el informe miente.
+
+El orden que da lecturas que valen algo:
+
+1. **Compara** `data/ultimo.json` con `data/anterior.json`: qué anuncios son
+   nuevos, qué mensajes han muerto, qué marcas entran o salen.
+2. **Mira las creatividades más longevas** con
+   `mcp__facebook-ads-library__analyze_ad_image` sobre las `media_url` del top
+   del ranking. Un anuncio que lleva dos meses corriendo merece que alguien
+   mire qué hay en la imagen, no solo qué dice el copy. Para vídeo,
+   `analyze_ad_videos_batch` en una sola llamada, que ahorra bastante contexto
+   y necesita `GEMINI_API_KEY` en el `.env`.
+3. **Escribe** cada lectura como una afirmación con su prueba al lado.
+
+Sin el MCP este paso se salta, y las lecturas salen del texto y ya. Se nota.
+
+Cinco preguntas que suelen dar buenas lecturas están en `lecturas.example.md`.
+
+---
+
 ## Qué hace cada pieza
 
 | Archivo | Papel |
 |---|---|
-| `config.json` | El set rastreado y los textos del informe. Es lo único que se edita a mano entre barridos, además de las lecturas |
-| `adlib.py` | Único punto de contacto con la API: pagina, parsea y resuelve nombres a `page_id`. Ejecutable suelto para buscar marcas |
-| `barrido.py` | Guarda `data/snapshot-<fecha>.json`, `data/ultimo.json` y copia el snapshot previo a `data/anterior.json` |
+| `setup.sh` | Entorno, servidor MCP y token. Se lanza una vez |
+| `config.json` | El set rastreado y los textos del informe |
+| `adlib.py` | Cliente de la API para el barrido, y resolutor de marcas si no hay MCP |
+| `barrido.py` | Guarda `data/snapshot-<fecha>.json`, `data/ultimo.json` y copia el previo a `data/anterior.json` |
 | `informe.py` | Agrupa por copy, calcula longevidad y variantes, saca miniaturas y escribe `out/radar.html` |
-| `lecturas.md` | El análisis, escrito a mano. **Reescríbelo en cada barrido**: el script no puede inferirlo |
+| `lecturas.md` | El análisis, escrito a mano tras mirar las creatividades |
 | `media/` | Caché de miniaturas por URL, para no re-descargar entre barridos |
 
 ---
 
 ## Reglas
-
-**Reescribe siempre `lecturas.md`.** Es la única parte con criterio. Si los datos
-cambiaron y las lecturas no, el informe miente. Compara `data/ultimo.json` con
-`data/anterior.json` para ver qué se movió: anuncios nuevos, mensajes que han
-muerto, marcas que entran o salen. Copia `lecturas.example.md` la primera vez;
-ahí están el formato y las preguntas que suelen dar buenas lecturas.
 
 **Inversión e impresiones no existen.** `spend`, `reach_estimate`,
 `impressions` y `total_active_time` vienen a nulo en anuncios comerciales; Meta
@@ -143,16 +184,18 @@ página son 30 anuncios y 1 crédito de ScrapeCreators.
 y enlazando a su ficha pública, para análisis competitivo. No las republiques
 como propias ni las uses de otra manera.
 
+**Un solo token para todo.** El de ScrapeCreators, en `.env`. `setup.sh` se lo
+pasa al MCP al registrarlo. Si alguien lo rota, hay que volver a lanzar
+`./setup.sh` para que el MCP se quede con el nuevo.
+
 ---
 
 ## Añadir un competidor
 
-```bash
-python3 adlib.py "Nombre"          # 1. resolver candidatas
-                                    # 2. verificar que no es un homónimo
-                                    # 3. añadir la entrada a config.json
-python3 barrido.py --marca "Nombre" --limit 250   # 4. barrer solo esa marca
-```
+1. `get_meta_platform_id` con el nombre.
+2. `get_meta_ads` con el candidato, y comprobar que la página es la buena.
+3. Añadir la entrada a `config.json`.
+4. `./venv/bin/python barrido.py --marca "Nombre" --limit 250` para comprobar.
 
 Ojo: `--marca` sobrescribe `data/ultimo.json` con **solo** esa marca. Para el
 informe completo hay que volver a barrer entero.
@@ -160,7 +203,6 @@ informe completo hay que volver a barrer entero.
 ## Consultas sueltas
 
 Para una pregunta puntual que no necesita informe («¿qué está anunciando X ahora
-mismo?»), tira de `adlib.py` en un one-liner o del servidor MCP
-[facebook-ads-library-mcp](https://github.com/proxy-intell/facebook-ads-library-mcp)
-si lo tienes instalado. Los scripts son para el informe; las consultas sueltas
-son para explorar en conversación.
+mismo?», «¿cómo es la creatividad de este anuncio?»), tira directamente de las
+herramientas `mcp__facebook-ads-library__*`. Los scripts son para el informe;
+el MCP es para explorar en conversación.
